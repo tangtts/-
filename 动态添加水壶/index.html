@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+      color: #fff;
+      background: linear-gradient(12deg, #2396ef, #4470ef);
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    h2 {
+      text-align: center;
+      margin: 15px 0;
+    }
+
+    .total {
+      font-size: 20px;
+      margin-bottom: 30px;
+    }
+
+    .class-cup {
+      width: 150px;
+      height: 350px;
+      border: 4px solid #0a2f9e;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      background-color: #fff;
+      color: #2396ef;
+      overflow: hidden;
+    }
+
+    .class-cup>.remind,
+    .class-cup>.percent {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      transition: all 0.3s linear;
+    }
+
+    .class-cup>.remind>.cup-container {
+      font-weight: 700;
+      font-size: 22px;
+    }
+
+    .class-cup>.remind>span:not(.cup-container) {
+      font-size: 16px;
+    }
+
+    .class-cup>.percent {
+      color: #0d5c99;
+      background: #b6c4ee;
+    }
+
+    p {
+      margin: 1em 0;
+      font-size: 15px;
+      letter-spacing: 2px;
+    }
+
+    .select-cup {
+      width: 350px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .select-cup>.row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .select-cup>.row>.cup {
+      width: 50px;
+      height: 100px;
+      border: 4px solid #0a2f9e;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      background-color: #fff;
+      margin: 0 15px;
+      color: #2396ef;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s linear;
+    }
+
+    .select-cup>.row>.cup.active {
+      color: #fff;
+      background: #b6c4ee;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Drink Water</h2>
+    <div class="total">Goal:2 Liters</div>
+    <div class="class-cup">
+      <div id="remind" class="remind">
+        <span class="cup-container">2L</span>
+        <span>Remained</span>
+      </div>
+      <div id="percent" class="percent">12.5%</div>
+    </div>
+    <p>Select how many glasses of water that you have drank</p>
+    <div class="select-cup">
+      <div class="row">
+        <div class="cup" name="1">250 ml</div>
+        <div class="cup" name="2">250 ml</div>
+        <div class="cup" name="3">250 ml</div>
+        <div class="cup">250 ml</div>
+      </div>
+      <div class="row">
+        <div class="cup">250 ml</div>
+        <div class="cup">250 ml</div>
+        <div class="cup">250 ml</div>
+        <div class="cup">250 ml</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    // https://github.com//eveningwater/my-web-projects
+    const $ = (v) => document.querySelector(v);
+    const $$ = (v) => document.querySelectorAll(v);
+    const remind = $("#remind");
+    const percent = $("#percent");
+    const cups = $$(".select-cup .cup");
+
+    const remindText = remind.querySelector(".cup-container");
+
+    const hasClass = (el, className) => el.classList.contains(className);
+
+    const addClass = (el, className) => el.classList.add(className);
+
+    const removeClass = (el, className) => el.classList.remove(className);
+    const toggleClass = (el, className) => el.classList.toggle(className);
+    const setText = (el, text) => (el.textContent = text);
+
+    const setStyle = (el, propValue = {}) => {
+      Object.keys(propValue).forEach(
+        (key) => (el.style[key] = propValue[key])
+      );
+    };
+
+    function setHeightVisible(h1, v1, h2, v2) {
+      let o1 = {
+        height: h1,
+        visibility: v1,
+      },
+        o2 = {
+          height: h2,
+          visibility: v2,
+        };
+      // 什么jb 写法 ,如果 是 remind 使用 第一个 o1 
+      [remind, percent].forEach((el, index) =>
+        setStyle(el, index === 0 ? o1 : o2)
+      );
+    }
+
+    function setTextContent(t1, t2) {
+      [percent, remindText].forEach((el, index) =>
+        setText(el, index === 0 ? t1 : t2)
+      );
+    }
+
+    function handler() {
+      // 这个地方是个 单独作用域
+      // 1. 点击 有 3个情况
+      //  2. 点击 当前的，把前面的 全部设置 成active，
+      // 后面的全部 取消 
+      const l = cups.length;
+
+      const unitHei = 350 / l;
+
+      for (let i = 0; i < l; i++) {
+        cups[i].addEventListener("click", () => {
+          // 这样就toggle 不生效了
+          // removeClass(cups[i], "active");
+          // addClass(cups[i], "active");
+          // toggleClass(cups[i],"active")
+          // for (let j = i; j < l; j++) {
+          //   removeClass(cups[j], "active");
+          // }
+          // for (let j = 0; j <= i; j++) {
+          //   addClass(cups[j], "active");
+          // }
+          if (hasClass(cups[i], "active")) {
+            // 说明已经是最后了
+            if (!cups[i + 1]) return;
+            // 下一个元素有 `active` 
+            const last = hasClass(cups[i + 1], "active");
+            // 后面的全部移除 active
+            for (let j = i; j < l; j++) {
+              removeClass(cups[j], "active");
+            }
+            console.log(cups[i + 1])
+            // if (!last) {
+            //   removeClass(cups[i], "active");
+            // }
+          } else {
+            for (let j = 0; j <= i; j++) {
+              addClass(cups[j], "active");
+            }
+          }
+
+          const actives = $$(".cup.active");
+          // 判断 active 的个数
+
+
+          if (actives.length === l) {
+            setHeightVisible("0", "hidden", "350px", "visible");
+
+            setTextContent("100%", "0L");
+          } else if (actives.length === 0) {
+            setHeightVisible("350px", "visible", "0", "hidden");
+
+            setTextContent("12.5%", "2L");
+          } else {
+            const h1 = unitHei * (l - actives.length) + "px";
+
+            const h2 = unitHei * actives.length + "px";
+
+            setHeightVisible(h1, "visible", h2, "visible");
+
+            const t1 = ((unitHei * actives.length) / 350) * 100 + "%";
+
+            const t2 =
+              ((cups[i].textContent.replace(/ml/, "").replace(/\s+/, "") -
+                0) *
+                (l - actives.length)) /
+              1000 +
+              "L";
+            setTextContent(t1, t2);
+          }
+        });
+      }
+    }
+    window.onload = () => {
+      setHeightVisible("350px", "visible", "0", "hidden");
+      handler();
+    };
+  </script>
+</body>
+
+</html>
