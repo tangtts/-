@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      :root {
+        --color_active--: #2396ef;
+        --color--: #dededf;
+      }
+
+      .prev,
+      .next {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 10px;
+      }
+
+      .progress-container {
+        position: relative;
+        width: 500px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .progress-container::before,
+      .progress {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        height: 5px;
+        border-radius: 2px;
+        background-color: var(--color--);
+        transform: translateY(-50%);
+        right: 0;
+        z-index: -1;
+      }
+      .circle {
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid var(--color--);
+        background-color: white;
+        transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+      .active {
+        border-color: var(--color_active--);
+      }
+
+      #progress {
+        width: 0%;
+        background-color: var(--color_active--);
+      }
+      .prev.active,
+      .next.active {
+        background-color: var(--color_active--);
+        color: var(--color--);
+      }
+      .box {
+        background-color: red;
+        padding: 20px;
+        margin-left: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="progress-container">
+      <div class="progress" id="progress"></div>
+      <div class="circle active">1</div>
+      <div class="circle">2</div>
+      <div class="circle">3</div>
+    </div>
+
+    <button class="prev">上一步</button>
+    <button class="next active">下一步</button>
+  </body>
+
+  <script>
+
+    var $ = (el) => document.querySelector(el),
+      $$ = (el) => document.querySelectorAll(el);
+
+    const prevBtn = $(".prev");
+    const nextBtn = $(".next");
+
+    const progress = $("#progress");
+    const circleElements = $$(".circle");
+    //max -> 元素的长度
+    const min = 0,
+      max = circleElements.length - 1;
+    let currentActive = 0;
+
+    nextBtn.addEventListener("click", () => {
+      if (nextBtn.classList.contains("disabled")) return;
+
+      if (currentActive >= max - 1) {
+        handleClass(nextBtn).addClass("disabled").removeClass("active");
+      }
+
+      if (currentActive <= max - 1) {
+        currentActive++;
+      }
+
+      if (currentActive > 0) {
+        handleClass(prevBtn).addClass("active").removeClass("disabled");
+        update();
+      }
+    });
+
+    prevBtn.addEventListener("click", () => {
+      if (prevBtn.classList.contains("disabled")) return;
+
+      if (currentActive <= 1) {
+        handleClass(prevBtn).addClass("disabled").removeClass("active");
+      }
+
+      if (currentActive > 0) {
+        currentActive--;
+      }
+
+      if (currentActive <= max - 1) {
+        handleClass(nextBtn).addClass("active").removeClass("disabled");
+      }
+
+      update();
+    });
+
+    function update() {
+      circleElements.forEach((item, index) => {
+        if (index <= currentActive) {
+          item.classList.add("active");
+        } else {
+          item.classList.remove("active");
+        }
+      });
+
+      progress.style.width = ((100 / max) * currentActive).toFixed(4) + "%";
+    }
+
+    function handleClass(el) {
+      let methods = {
+        addClass,
+        removeClass,
+      };
+
+      function addClass(c) {
+        el.classList.add(c);
+        return methods;
+      }
+
+      function removeClass(c) {
+        el.classList.remove(c);
+
+        return methods;
+      }
+
+      return methods;
+    }
+  </script>
+</html>
